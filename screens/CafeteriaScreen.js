@@ -8,9 +8,9 @@ import {
   StyleSheet,
   Button,
   Alert,
-  TextInput,
 } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Rating } from 'react-native-ratings'; // Import the Rating component
 
 const foodItems = [
   {
@@ -109,7 +109,6 @@ const foodItems = [
       { id: 's3', name: 'Mayo', price: 0.50 },
     ],
   },
-  // Add sauces for other food items similarly
 ];
 
 const drinkItems = [
@@ -164,8 +163,9 @@ const drinkItems = [
   },
 ];
 
-function MenuItem({ item, onAddToCart }) {
+function MenuItem({ item, onAddToCart, onAddReview }) {
   const [selectedSauces, setSelectedSauces] = useState([]);
+  const [rating, setRating] = useState(0); // State for star rating
 
   const handleSauceToggle = (sauce) => {
     if (selectedSauces.includes(sauce)) {
@@ -199,6 +199,25 @@ function MenuItem({ item, onAddToCart }) {
             ))}
           </View>
         )}
+        <View style={styles.ratingContainer}>
+          <Text style={styles.ratingTitle}>Rate this item:</Text>
+          <Rating
+            type="star"
+            ratingCount={5}
+            imageSize={30}
+            startingValue={rating}
+            onFinishRating={(value) => setRating(value)}
+            style={styles.ratingStars}
+          />
+        </View>
+        <Button
+          title="Submit Review"
+          onPress={() => {
+            onAddReview(item.id, rating);
+            setRating(0); // Reset rating after submission
+            Alert.alert('Review Submitted', 'Thank you for your review!');
+          }}
+        />
       </View>
       <Button
         title="Add"
@@ -208,7 +227,7 @@ function MenuItem({ item, onAddToCart }) {
   );
 }
 
-function MenuScreen({ navigation, cart, setCart }) {
+function MenuScreen({ navigation, cart, setCart, reviews, setReviews }) {
   const addToCart = (item) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((i) => i.id === item.id);
@@ -221,6 +240,13 @@ function MenuScreen({ navigation, cart, setCart }) {
     });
   };
 
+  const addReview = (itemId, rating) => {
+    setReviews((prevReviews) => ({
+      ...prevReviews,
+      [itemId]: [...(prevReviews[itemId] || []), rating],
+    }));
+  };
+
   const totalCartQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -231,7 +257,7 @@ function MenuScreen({ navigation, cart, setCart }) {
           <FlatList
             data={drinkItems}
             renderItem={({ item }) => (
-              <MenuItem item={item} onAddToCart={addToCart} />
+              <MenuItem item={item} onAddToCart={addToCart} onAddReview={addReview} />
             )}
             keyExtractor={(item) => item.id}
           />
@@ -242,7 +268,7 @@ function MenuScreen({ navigation, cart, setCart }) {
           <FlatList
             data={foodItems}
             renderItem={({ item }) => (
-              <MenuItem item={item} onAddToCart={addToCart} />
+              <MenuItem item={item} onAddToCart={addToCart} onAddReview={addReview} />
             )}
             keyExtractor={(item) => item.id}
           />
@@ -260,7 +286,7 @@ function MenuScreen({ navigation, cart, setCart }) {
   );
 }
 
-function CartScreen({ navigation, cart, setCart }) {
+function CartScreen({ navigation, cart, setCart, reviews }) {
   const total = cart.reduce((sum, item) => {
     const saucesTotal = item.sauces
       ? item.sauces.reduce((sauceSum, sauce) => sauceSum + sauce.price, 0)
@@ -322,7 +348,7 @@ function CartScreen({ navigation, cart, setCart }) {
                   />
                 </View>
                 <Text style={styles.itemTotal}>
-                  ${(item.price * item.quantity).toFixed(2)}
+                  ${((item.price + item.sauces.reduce((sum, sauce) => sum + sauce.price, 0)) * item.quantity).toFixed(2)}
                 </Text>
                 {item.sauces && (
                   <View style={styles.saucesList}>
@@ -357,17 +383,18 @@ const Stack = createStackNavigator();
 
 export default function CafeteriaStack() {
   const [cart, setCart] = useState([]);
+  const [reviews, setReviews] = useState({});
 
   return (
     <Stack.Navigator>
       <Stack.Screen name="Menu">
         {(props) => (
-          <MenuScreen {...props} cart={cart} setCart={setCart} />
+          <MenuScreen {...props} cart={cart} setCart={setCart} reviews={reviews} setReviews={setReviews} />
         )}
       </Stack.Screen>
       <Stack.Screen name="Cart">
         {(props) => (
-          <CartScreen {...props} cart={cart} setCart={setCart} />
+          <CartScreen {...props} cart={cart} setCart={setCart} reviews={reviews} />
         )}
       </Stack.Screen>
     </Stack.Navigator>
@@ -375,238 +402,155 @@ export default function CafeteriaStack() {
 }
 
 const styles = StyleSheet.create({
-  // General Container Styles
   container: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#f0f0f0', // Light background for a soft appearance
+    padding: 10,
   },
   column: {
     flex: 1,
-    padding: 15,
-    backgroundColor: '#fff', // Clean white background for menu items
-    borderRadius: 10,
-    margin: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  separator: {
-    width: 1,
-    backgroundColor: '#ddd',
   },
   sectionTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginVertical: 15,
-  },
-
-  // Menu Item Styles
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    backgroundColor: '#f9f9f9', // Subtle background for items
-    padding: 10,
-    borderRadius: 8,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  itemImage: {
-    width: 80,
-    height: 80,
-    marginRight: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  itemInfo: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#444',
-  },
-  itemDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 5,
-  },
-  itemPrice: {
-    fontSize: 16,
-    color: '#000',
-    marginTop: 10,
-  },
-  sauceContainer: {
-    marginTop: 10,
-  },
-  sauceTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  sauceButton: {
-    padding: 5,
-    marginVertical: 5,
-    backgroundColor: '#eee',
-    borderRadius: 5,
-    borderColor: '#ccc',
-    borderWidth: 1,
-  },
-  sauceButtonSelected: {
-    backgroundColor: '#d1e7dd',
-  },
-
-  // Cart Button Styles
-  cartButton: {
-    padding: 15,
-    backgroundColor: '#FF8C00', // Orange for contrast and vibrancy
-    alignItems: 'center',
-    margin: 15,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  cartButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-
-  // Cart Screen Styles
-  cartContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  flatListContent: {
-    paddingBottom: 100, // Ensure there's space for the checkout button
-  },
-  emptyCart: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 50,
-    color: '#888',
-  },
-  cartItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: '#f7f7f7', // Light grey background for cart items
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 10,
-    shadowColor: '#ddd',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  saucesList: {
-    marginTop: 10,
-  },
-  sauceItem: {
-    fontSize: 14,
-    color: '#555',
-  },
-  quantityControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  quantityText: {
-    fontSize: 16,
-    marginHorizontal: 15,
-    color: '#444',
-  },
-  itemTotal: {
-    fontSize: 16,
-    width: 70,
-    textAlign: 'right',
-    color: '#333',
-  },
-
-  // Checkout Button Styles
-  checkoutContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    padding: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    zIndex: 1,
-    shadowColor: '#ddd',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  total: {
     fontSize: 20,
     fontWeight: 'bold',
-    textAlign: 'right',
-    marginBottom: 10,
-    color: '#333',
+    marginVertical: 10,
   },
-  checkoutButton: {
-    backgroundColor: '#28a745', // Fresh green for the checkout button
-    paddingVertical: 15,
-    borderRadius: 8,
-    shadowColor: '#28a745',
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  checkoutButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-
-  // Review Styles
-  reviewContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    borderColor: '#ddd',
-    borderWidth: 1,
-  },
-  reviewTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  reviewInput: {
-    height: 100,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginTop: 10,
-    padding: 10,
-    borderRadius: 5,
-    textAlignVertical: 'top',
-    backgroundColor: '#fff',
-  },
-  reviewButton: {
-    marginTop: 10,
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  reviewButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-});
+  separator: {
+    width: '100%',
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 10,  },
+    cartButton: {
+      backgroundColor: '#007BFF',
+      padding: 10,
+      borderRadius: 5,
+      position: 'absolute',
+      bottom: 20,
+      alignSelf: 'center',
+    },
+    cartButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    menuItem: {
+      flexDirection: 'row',
+      marginVertical: 10,
+      padding: 10,
+      backgroundColor: '#fff',
+      borderRadius: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.8,
+      shadowRadius: 2,
+      elevation: 3,
+    },
+    itemImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 10,
+      marginRight: 10,
+    },
+    itemInfo: {
+      flex: 1,
+      justifyContent: 'space-between',
+    },
+    itemName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+    itemDescription: {
+      fontSize: 14,
+      color: '#666',
+    },
+    itemPrice: {
+      fontSize: 16,
+      color: '#333',
+    },
+    sauceContainer: {
+      marginVertical: 10,
+    },
+    sauceTitle: {
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    sauceButton: {
+      padding: 5,
+      marginVertical: 5,
+      backgroundColor: '#f0f0f0',
+      borderRadius: 5,
+    },
+    sauceButtonSelected: {
+      backgroundColor: '#c0c0c0',
+    },
+    ratingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    ratingTitle: {
+      fontSize: 14,
+      marginRight: 10,
+    },
+    ratingStars: {
+      flex: 1,
+    },
+    cartContainer: {
+      flex: 1,
+      padding: 10,
+    },
+    emptyCart: {
+      fontSize: 18,
+      textAlign: 'center',
+      marginVertical: 20,
+    },
+    cartItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: '#ccc',
+    },
+    quantityControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    quantityText: {
+      marginHorizontal: 10,
+      fontSize: 16,
+    },
+    itemTotal: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    saucesList: {
+      marginTop: 5,
+    },
+    sauceItem: {
+      fontSize: 14,
+      color: '#666',
+    },
+    flatListContent: {
+      paddingBottom: 80, // To avoid overlapping with the checkout button
+    },
+    checkoutContainer: {
+      padding: 10,
+      borderTopWidth: 1,
+      borderTopColor: '#ccc',
+    },
+    total: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 10,
+    },
+    checkoutButton: {
+      backgroundColor: '#007BFF',
+      padding: 10,
+      borderRadius: 5,
+      alignItems: 'center',
+    },
+    checkoutButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+  });
+  
+  

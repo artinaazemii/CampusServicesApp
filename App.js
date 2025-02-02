@@ -6,7 +6,7 @@ import { Text, View } from 'react-native';
 
 import CafeteriaStack from './screens/CafeteriaScreen';
 
-
+import TransportScreen from './screens/TransportScreen';
 import MaintenanceScreen from './screens/MaintenanceScreen';
 
 import FacilityScreen from './screens/FacilityScreen';
@@ -37,7 +37,7 @@ export default function App() {
 
         <Tab.Screen name="Cafeteria" component={CafeteriaStack} />
 
-        {/*<Tab.Screen name="Transport" component={TransportScreen} />*/}
+        <Tab.Screen name="Transport" component={TransportScreen} />
 
         <Tab.Screen name="Facilities" component={FacilityScreen} />
 
