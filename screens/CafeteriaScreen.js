@@ -7,10 +7,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Button,
-  Alert,
+  Platform,
 } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Rating } from 'react-native-ratings'; // Import the Rating component
+import { Rating } from 'react-native-ratings';
 
 const foodItems = [
   {
@@ -163,9 +163,18 @@ const drinkItems = [
   },
 ];
 
+// Wrapper function for alerts
+const showAlert = (message) => {
+  if (Platform.OS === 'web') {
+    window.alert(message); // Use browser's alert on web
+  } else {
+    Alert.alert(message); // Use React Native's alert on mobile
+  }
+};
+
 function MenuItem({ item, onAddToCart, onAddReview }) {
   const [selectedSauces, setSelectedSauces] = useState([]);
-  const [rating, setRating] = useState(0); // State for star rating
+  const [rating, setRating] = useState(0);
 
   const handleSauceToggle = (sauce) => {
     if (selectedSauces.includes(sauce)) {
@@ -215,7 +224,7 @@ function MenuItem({ item, onAddToCart, onAddReview }) {
           onPress={() => {
             onAddReview(item.id, rating);
             setRating(0); // Reset rating after submission
-            Alert.alert('Review Submitted', 'Thank you for your review!');
+            showAlert('Review Submitted', 'Thank you for your review!');
           }}
         />
       </View>
@@ -309,20 +318,9 @@ function CartScreen({ navigation, cart, setCart, reviews }) {
   };
 
   const handleCheckout = () => {
-    Alert.alert(
-      'Order Submitted',
-      'Your order has been placed successfully!',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            setCart([]);
-            navigation.navigate('Menu');
-          },
-        },
-      ],
-      { cancelable: false }
-    );
+    showAlert('Order Submitted', 'Your order has been placed successfully!');
+    setCart([]);
+    navigation.navigate('Menu');
   };
 
   return (
@@ -367,7 +365,7 @@ function CartScreen({ navigation, cart, setCart, reviews }) {
           <View style={styles.checkoutContainer}>
             <Text style={styles.total}>Total: ${total.toFixed(2)}</Text>
             <TouchableOpacity
-              style={[styles.checkoutButton, { pointerEvents: 'auto' }]}
+              style={styles.checkoutButton}
               onPress={handleCheckout}
             >
               <Text style={styles.checkoutButtonText}>Checkout</Text>
@@ -400,6 +398,7 @@ export default function CafeteriaStack() {
     </Stack.Navigator>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -552,5 +551,3 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
     },
   });
-  
-  
