@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, Image, Alert, Modal, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, Image, Modal, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,7 +12,7 @@ const initialRequests = [
     status: 'Completed',
     date: '2024-03-15',
     urgency: 'Medium',
-    image: 'https://via.placeholder.com/150', // Replace with your image URL
+    image: 'https://via.placeholder.com/150',
   },
   {
     id: '2',
@@ -21,7 +21,7 @@ const initialRequests = [
     status: 'In Progress',
     date: '2024-03-16',
     urgency: 'High',
-    image: 'https://via.placeholder.com/150', // Replace with your image URL
+    image: 'https://via.placeholder.com/150',
   },
 ];
 
@@ -32,13 +32,17 @@ export default function MaintenanceScreen() {
   const [urgency, setUrgency] = useState('Medium');
   const [image, setImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); // To store selected image
+  const [selectedImage, setSelectedImage] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSubmit = () => {
     if (!category || !description) {
-      Alert.alert('Error', 'Please fill all required fields');
+      if (Platform.OS === 'web') {
+        window.alert('Please fill all required fields');
+      } else {
+        Alert.alert('Error', 'Please fill all required fields');
+      }
       return;
     }
 
@@ -56,7 +60,12 @@ export default function MaintenanceScreen() {
     setDescription('');
     setUrgency('Medium');
     setImage(null);
-    Alert.alert('Success', 'Request submitted successfully!');
+
+    if (Platform.OS === 'web') {
+      window.alert('Request submitted successfully!');
+    } else {
+      Alert.alert('Success', 'Request submitted successfully!');
+    }
   };
 
   const pickImage = async () => {
@@ -71,13 +80,11 @@ export default function MaintenanceScreen() {
     }
   };
 
-  // Handle clicking on image to view it large
   const viewImage = (uri) => {
     setSelectedImage(uri);
     setModalVisible(true);
   };
 
-  // Filter requests based on the search query
   const filteredRequests = requests.filter(request =>
     request.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
     request.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -119,7 +126,6 @@ export default function MaintenanceScreen() {
           </Picker>
           <TextInput style={styles.input} placeholder="Description of the problem" multiline numberOfLines={4} value={description} onChangeText={setDescription} />
           
-          {/* Urgency Buttons */}
           <View style={styles.urgencyButtons}>
             <Button title="Low" onPress={() => setUrgency('Low')} color={urgency === 'Low' ? '#27ae60' : '#3498db'} />
             <Button title="Medium" onPress={() => setUrgency('Medium')} color={urgency === 'Medium' ? '#f39c12' : '#3498db'} />
@@ -141,7 +147,6 @@ export default function MaintenanceScreen() {
         <Text style={styles.sectionTitle}>Previous Requests</Text>
         <FlatList data={filteredRequests} renderItem={renderItem} keyExtractor={item => item.id} />
         
-        {/* Modal to show larger image */}
         <Modal visible={modalVisible} transparent={true} animationType="fade" onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
             <TouchableOpacity style={styles.modalCloseButton} onPress={() => setModalVisible(false)}>

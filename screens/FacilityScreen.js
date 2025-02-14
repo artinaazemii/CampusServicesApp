@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, Button, TextInput, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, Button, TextInput, Platform } from 'react-native';
 
+// Updated facilities data...
 const facilities = [
   { id: '1', name: 'Basketball Court', type: 'Sports', capacity: 20, slots: [{ time: '09:00 - 10:00', booked: false }, { time: '10:00 - 11:00', booked: false }, { time: '11:00 - 12:00', booked: true }, { time: '14:00 - 15:00', booked: false }] },
   { id: '2', name: 'Conference Room A', type: 'Meeting', capacity: 10, slots: [{ time: '09:00 - 10:00', booked: false }, { time: '10:00 - 11:00', booked: false }, { time: '13:00 - 14:00', booked: false }] },
@@ -35,7 +36,14 @@ function BookingModal({ visible, facility, onClose, onBook }) {
   const handleBooking = () => {
     if (selectedSlot) {
       onBook(facility.id, selectedSlot);
-      Alert.alert('Booking Confirmed', `You have successfully booked the ${facility.name} at ${selectedSlot}`);
+      
+      // Adjusting for cross-platform alert (using window.alert for web)
+      if (Platform.OS === 'web') {
+        window.alert(`You have successfully booked the ${facility.name} at ${selectedSlot}`);
+      } else {
+        Alert.alert('Booking Confirmed', `You have successfully booked the ${facility.name} at ${selectedSlot}`);
+      }
+
       onClose();
     }
   };
@@ -155,7 +163,7 @@ export default function FacilityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fdf6e3', // light pastel cream background
+    backgroundColor: '#fdf6e3',
     padding: 20,
   },
   searchBar: {
