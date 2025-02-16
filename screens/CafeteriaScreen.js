@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Button,
   Platform,
+  Alert,
 } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Rating } from 'react-native-ratings';
@@ -224,7 +225,7 @@ function MenuItem({ item, onAddToCart, onAddReview }) {
           onPress={() => {
             onAddReview(item.id, rating);
             setRating(0); // Reset rating after submission
-            showAlert('Review Submitted', 'Thank you for your review!');
+            showAlert('Thank you for your review!'); // Updated alert
           }}
         />
       </View>
@@ -399,7 +400,6 @@ export default function CafeteriaStack() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -417,137 +417,123 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 1,
     backgroundColor: '#ccc',
-    marginVertical: 10,  },
-    cartButton: {
-      backgroundColor: '#007BFF',
-      padding: 10,
-      borderRadius: 5,
-      position: 'absolute',
-      bottom: 20,
-      alignSelf: 'center',
-    },
-    cartButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-    menuItem: {
-      flexDirection: 'row',
-      marginVertical: 10,
-      padding: 10,
-      backgroundColor: '#fff',
-      borderRadius: 10,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.8,
-      shadowRadius: 2,
-      elevation: 3,
-    },
-    itemImage: {
-      width: 80,
-      height: 80,
-      borderRadius: 10,
-      marginRight: 10,
-    },
-    itemInfo: {
-      flex: 1,
-      justifyContent: 'space-between',
-    },
-    itemName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-    },
-    itemDescription: {
-      fontSize: 14,
-      color: '#666',
-    },
-    itemPrice: {
-      fontSize: 16,
-      color: '#333',
-    },
-    sauceContainer: {
-      marginVertical: 10,
-    },
-    sauceTitle: {
-      fontSize: 14,
-      fontWeight: 'bold',
-    },
-    sauceButton: {
-      padding: 5,
-      marginVertical: 5,
-      backgroundColor: '#f0f0f0',
-      borderRadius: 5,
-    },
-    sauceButtonSelected: {
-      backgroundColor: '#c0c0c0',
-    },
-    ratingContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    ratingTitle: {
-      fontSize: 14,
-      marginRight: 10,
-    },
-    ratingStars: {
-      flex: 1,
-    },
-    cartContainer: {
-      flex: 1,
-      padding: 10,
-    },
-    emptyCart: {
-      fontSize: 18,
-      textAlign: 'center',
-      marginVertical: 20,
-    },
-    cartItem: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: '#ccc',
-    },
-    quantityControls: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    quantityText: {
-      marginHorizontal: 10,
-      fontSize: 16,
-    },
-    itemTotal: {
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
-    saucesList: {
-      marginTop: 5,
-    },
-    sauceItem: {
-      fontSize: 14,
-      color: '#666',
-    },
-    flatListContent: {
-      paddingBottom: 80, // To avoid overlapping with the checkout button
-    },
-    checkoutContainer: {
-      padding: 10,
-      borderTopWidth: 1,
-      borderTopColor: '#ccc',
-    },
-    total: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
-    checkoutButton: {
-      backgroundColor: '#007BFF',
-      padding: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-    },
-    checkoutButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-  });
+    marginVertical: 10,
+  },
+  cartButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  cartButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  cartContainer: {
+    flex: 1,
+    padding: 10,
+  },
+  cartItem: {
+    marginVertical: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  itemName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  quantityText: {
+    fontSize: 18,
+    marginHorizontal: 10,
+  },
+  itemTotal: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  saucesList: {
+    marginTop: 10,
+  },
+  sauceItem: {
+    fontSize: 14,
+  },
+  flatListContent: {
+    paddingBottom: 100,
+  },
+  checkoutContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  total: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  checkoutButton: {
+    backgroundColor: '#28A745',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  checkoutButtonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  emptyCart: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    marginVertical: 10,
+  },
+  itemImage: {
+    width: 100,
+    height: 100,
+    marginRight: 10,
+  },
+  itemInfo: {
+    flex: 1,
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  itemDescription: {
+    fontSize: 14,
+    marginVertical: 5,
+  },
+  itemPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginVertical: 5,
+  },
+  sauceContainer: {
+    marginVertical: 10,
+  },
+  sauceButton: {
+    padding: 5,
+    backgroundColor: '#f0f0f0',
+    marginVertical: 5,
+  },
+  sauceButtonSelected: {
+    backgroundColor: '#c0f0c0',
+  },
+  ratingContainer: {
+    marginTop: 10,
+  },
+  ratingTitle: {
+    fontSize: 14,
+  },
+  ratingStars: {
+    marginVertical: 5,
+  },
+});

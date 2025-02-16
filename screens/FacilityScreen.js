@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, Button, TextInput, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, Button, TextInput, Platform, Alert } from 'react-native';
 
 // Updated facilities data...
 const facilities = [
@@ -37,7 +37,7 @@ function BookingModal({ visible, facility, onClose, onBook }) {
     if (selectedSlot) {
       onBook(facility.id, selectedSlot);
       
-      // Adjusting for cross-platform alert (using window.alert for web)
+      // Cross-platform alert handling
       if (Platform.OS === 'web') {
         window.alert(`You have successfully booked the ${facility.name} at ${selectedSlot}`);
       } else {
