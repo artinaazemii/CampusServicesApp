@@ -15,6 +15,7 @@ import FacilityScreen from './screens/FacilityScreen';
 
 
 
+
 // Temporary screens
 
 {/*function CafeteriaScreen() { return <View><Text>Cafeteria</Text></View> }
@@ -46,6 +47,8 @@ export default function App() {
       </Tab.Navigator>
 
     </NavigationContainer>
+
+    
 
   );
 
